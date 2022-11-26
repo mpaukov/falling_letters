@@ -1,0 +1,41 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: fit-content;
+  margin: 60px auto;
+}
+.button {
+  position: relative;
+  transform: translate(0, -150%);
+  width: 120px;
+  height: 60px;
+  border: none;
+  border-radius: 50%;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 0.8;
+  color: blue;
+  background-color: #3dbd16;
+  cursor: pointer;
+}
+
+.hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  border: 0;
+  padding: 0;
+  clip: rect(0 0 0 0);
+  overflow: hidden;
+}
+
+body {
+  background-image: url(/img/background.jpg);
+}
+canvas {
+  background: #eee;
+  background-image: url(/img/matrix.gif);
+  border-radius: 10px;
+}
