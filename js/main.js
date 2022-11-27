@@ -1,3 +1,7 @@
+import config from "./config.json" assert { type: "json" };
+
+console.log("config", config);
+
 const startButton = document.querySelector("button");
 const canvas = document.getElementById("myCanvas");
 
@@ -16,10 +20,10 @@ function handleListener(e) {
 
 let ctx = canvas.getContext("2d");
 let ballRadius = 24;
-let x = canvas.width / 2;
-let y = canvas.height - 30;
+let x = Math.floor(Math.random() * canvas.width);
+let y = 30;
 let dx = 2;
-let dy = -2;
+let dy = 2;
 let paddleHeight = 10;
 let paddleWidth = 75;
 let paddleX = (canvas.width - paddleWidth) / 2;
@@ -38,22 +42,18 @@ let lives = 3;
 let bricks = [];
 
 function drawBall() {
-  ctx.beginPath();
-  ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
-  ctx.fillStyle = "gold";
-  ctx.fill();
-  ctx.closePath();
-  ctx.font = "48px serif";
+  ctx.font = config.font;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillStyle = "green";
-  ctx.fillText("E", x, y + 2);
-  ctx.strokeStyle = "red";
-  ctx.strokeText("E", x, y + 2);
+  ctx.fillStyle = "gold";
+  ctx.fillText("E", x, y);
+  ctx.strokeStyle = "gold";
+  ctx.strokeText("E", x, y);
 }
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBall();
+  y += dy;
   requestAnimationFrame(draw);
 }

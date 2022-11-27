@@ -32,10 +32,10 @@
 }
 
 body {
-  background-image: url(/img/background.jpg);
+  background-image: url(../img/background.jpg);
 }
 canvas {
   background: #eee;
-  background-image: url(/img/matrix.gif);
+  background-image: url(../img/matrix.gif);
   border-radius: 10px;
 }
