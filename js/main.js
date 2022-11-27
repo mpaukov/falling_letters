@@ -1,9 +1,9 @@
 import config from "./config.json" assert { type: "json" };
 
-console.log("config", config);
-
 const startButton = document.querySelector("button");
 const canvas = document.getElementById("myCanvas");
+
+let intervalIdx = 0;
 
 startButton.addEventListener("click", handleClick);
 
@@ -11,11 +11,29 @@ function handleClick() {
   startButton.classList.add("hidden");
   canvas.style.backgroundImage = "none";
   document.addEventListener("keydown", handleListener);
+  intervalIdx = setInterval(() => {
+    letters.push({
+      letter: config.letters[Math.floor(Math.random() * config.letters.length)],
+      x: Math.floor(Math.random() * canvas.width),
+      y: 0,
+      fillColor:
+        config.colors[Math.floor(Math.random() * config.colors.length)],
+      strokeColor:
+        config.colors[Math.floor(Math.random() * config.colors.length)],
+    });
+  }, 300);
+  setTimeout(() => {
+    clearInterval(intervalIdx);
+    intervalIdx = 0;
+  }, 20000);
   draw();
 }
 
 function handleListener(e) {
-  console.log("e", e);
+  const length = letters.length;
+  letters = letters.filter((letter) => letter.letter !== e.key.toUpperCase());
+  const newLength = letters.length;
+  score += length - newLength;
 }
 
 let ctx = canvas.getContext("2d");
@@ -41,19 +59,51 @@ let lives = 3;
 
 let bricks = [];
 
-function drawBall() {
+let letters = [];
+
+function drawLetters() {
   ctx.font = config.font;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillStyle = "gold";
-  ctx.fillText("E", x, y);
-  ctx.strokeStyle = "gold";
-  ctx.strokeText("E", x, y);
+
+  for (let i = 0; i < letters.length; i += 1) {
+    ctx.fillStyle = letters[i].fillColor;
+    ctx.fillText(letters[i].letter, letters[i].x, letters[i].y);
+    ctx.strokeStyle = letters[i].strokeColor;
+    ctx.strokeText(letters[i].letter, letters[i].x, letters[i].y);
+    letters[i].y += dy;
+  }
 }
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawBall();
-  y += dy;
-  requestAnimationFrame(draw);
+  letters = collisions();
+  drawLetters();
+  drawScore();
+  if (intervalIdx !== 0) {
+    requestAnimationFrame(draw);
+  } else {
+    requestAnimationFrame(gameOver);
+  }
+}
+
+function collisions() {
+  return letters.filter((letter) => letter.y < canvas.height);
+}
+
+function drawScore() {
+  ctx.font = "16px Arial";
+  ctx.textAlign = "left";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = "#0095DD";
+  ctx.fillText("Score: " + score, 20, 20);
+}
+
+function gameOver() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.font = "52px Arial";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = "#0095DD";
+  ctx.fillText("Score: " + score, canvas.width / 2, canvas.height / 2);
 }

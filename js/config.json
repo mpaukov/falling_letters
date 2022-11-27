@@ -34,5 +34,11 @@
         "gray",
         "blue",
         "gold"
+    ],
+    "audio": [
+        {
+            "description": "",
+            "path": ""
+        }
     ]
 }
