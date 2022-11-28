@@ -38,7 +38,7 @@
     "timeInterval": 20000,
     "timeLetterRespawn":1000,
     "audio":{
-        "click":"../audio/click.mp3",
-        "fire":"../audio/fire.mp3"
+        "click":"./audio/click.mp3",
+        "fire":"./audio/fire.mp3"
     }
 }

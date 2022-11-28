@@ -36,7 +36,6 @@ function handleListener(e) {
   new Audio(config.audio.click).play();
   const key = e.key.toUpperCase();
   const delLetters = letters.filter((letter) => letter.letter === key);
-
   delLetters.forEach((letter) => {
     if (letter.fillColor === "gold" && letter.strokeColor === "gold") {
       goldScore += 1;
