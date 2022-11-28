@@ -4,6 +4,13 @@ const startButton = document.querySelector("button");
 const canvas = document.getElementById("myCanvas");
 
 let intervalIdx = 0;
+let ctx = canvas.getContext("2d");
+let dy = 2;
+let score = 0;
+let goldScore = 0;
+let totalScore = 0;
+let letters = [];
+let explosions = [];
 
 startButton.addEventListener("click", handleClick);
 
@@ -12,54 +19,27 @@ function handleClick() {
   canvas.style.backgroundImage = "none";
   document.addEventListener("keydown", handleListener);
   intervalIdx = setInterval(() => {
-    letters.push({
-      letter: config.letters[Math.floor(Math.random() * config.letters.length)],
-      x: Math.floor(Math.random() * canvas.width),
-      y: 0,
-      fillColor:
-        config.colors[Math.floor(Math.random() * config.colors.length)],
-      strokeColor:
-        config.colors[Math.floor(Math.random() * config.colors.length)],
-    });
-  }, 300);
+    letters.push(letter());
+  }, config.timeLetterRespawn);
   setTimeout(() => {
     clearInterval(intervalIdx);
     intervalIdx = 0;
-  }, 20000);
+  }, config.timeInterval);
   draw();
 }
 
 function handleListener(e) {
-  const length = letters.length;
-  letters = letters.filter((letter) => letter.letter !== e.key.toUpperCase());
-  const newLength = letters.length;
-  score += length - newLength;
+  const key = e.key.toUpperCase();
+  const delLetters = letters.filter((letter) => letter.letter === key);
+  delLetters.forEach((letter) => {
+    if (letter.fillColor === "gold" && letter.strokeColor === "gold") {
+      goldScore += 1;
+    } else score += 1;
+    totalScore = score + 2 * goldScore;
+    explosions.push(new explosion(letter.x, letter.y));
+  });
+  letters = letters.filter((letter) => letter.letter !== key);
 }
-
-let ctx = canvas.getContext("2d");
-let ballRadius = 24;
-let x = Math.floor(Math.random() * canvas.width);
-let y = 30;
-let dx = 2;
-let dy = 2;
-let paddleHeight = 10;
-let paddleWidth = 75;
-let paddleX = (canvas.width - paddleWidth) / 2;
-let rightPressed = false;
-let leftPressed = false;
-let brickRowCount = 5;
-let brickColumnCount = 7;
-let brickWidth = 75;
-let brickHeight = 20;
-let brickPadding = 10;
-let brickOffsetTop = 30;
-let brickOffsetLeft = 30;
-let score = 0;
-let lives = 3;
-
-let bricks = [];
-
-let letters = [];
 
 function drawLetters() {
   ctx.font = config.font;
@@ -80,6 +60,7 @@ function draw() {
   letters = collisions();
   drawLetters();
   drawScore();
+  drawExplosion();
   if (intervalIdx !== 0) {
     requestAnimationFrame(draw);
   } else {
@@ -92,18 +73,130 @@ function collisions() {
 }
 
 function drawScore() {
-  ctx.font = "16px Arial";
+  ctx.font = "36px serif";
   ctx.textAlign = "left";
   ctx.textBaseline = "middle";
   ctx.fillStyle = "#0095DD";
-  ctx.fillText("Score: " + score, 20, 20);
+  ctx.fillText("Score: " + totalScore, 20, 20);
 }
 
 function gameOver() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.font = "52px Arial";
+  ctx.font = config.font;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillStyle = "#0095DD";
-  ctx.fillText("Score: " + score, canvas.width / 2, canvas.height / 2);
+  ctx.fillText(`Score: ${score}`, canvas.width / 2, canvas.height / 2 - 60);
+  ctx.fillText(`GoldScore: ${goldScore}`, canvas.width / 2, canvas.height / 2);
+  ctx.fillText(
+    `Total Score = ${totalScore}`,
+    canvas.width / 2,
+    canvas.height / 2 + 60
+  );
+  startButton.classList.remove("hidden");
+  document.removeEventListener("keydown", handleListener);
+  setTimeout(() => {
+    canvas.style.backgroundImage = "url(../img/matrix.gif)";
+  }, 5000);
+  letters = [];
+  explosions = [];
+}
+
+function letter() {
+  const probability = Math.floor(Math.random() * 4);
+  let fillColor;
+  let strokeColor;
+  if (probability === 3) {
+    fillColor = config.colors[config.colors.length - 1];
+    strokeColor = fillColor;
+  } else {
+    fillColor =
+      config.colors[Math.floor(Math.random() * (config.colors.length - 1))];
+    strokeColor =
+      config.colors[Math.floor(Math.random() * (config.colors.length - 1))];
+  }
+  return {
+    letter: config.letters[Math.floor(Math.random() * config.letters.length)],
+    x: Math.floor(Math.random() * (canvas.width - 48)) + 24,
+    y: 0,
+    fillColor,
+    strokeColor,
+  };
+}
+
+function drawExplosion() {
+  if (explosions.length === 0) {
+    return;
+  }
+
+  for (let i = 0; i < explosions.length; i++) {
+    const explosion = explosions[i];
+    const projectiles = explosion.projectiles;
+
+    if (projectiles.length === 0) {
+      explosions.splice(i, 1);
+      return;
+    }
+
+    const projectilesRemove = projectiles.slice();
+
+    for (let ii = 0; ii < projectiles.length; ii++) {
+      const projectile = projectiles[ii];
+
+      // remove projectile if radius is below 0
+      if (projectile.radius < 0) {
+        projectilesRemove.splice(ii, 1);
+        continue;
+      }
+
+      // draw
+      ctx.beginPath();
+      ctx.arc(
+        projectile.x,
+        projectile.y,
+        projectile.radius,
+        Math.PI * 2,
+        0,
+        false
+      );
+      ctx.closePath();
+      ctx.fillStyle =
+        "hsl(" + projectile.h + "," + projectile.s + "%," + projectile.l + "%)";
+      ctx.fill();
+
+      // update
+      projectile.x -= projectile.vx;
+      projectile.y -= projectile.vy;
+      projectile.radius -= 0.02;
+
+      // collisions
+      if (projectile.x > canvas.width || projectile.x < 0) {
+        projectile.vx *= -1;
+      }
+      if (projectile.y > canvas.height || projectile.y < 0) {
+        projectile.vy *= -1;
+      }
+    }
+
+    explosion.projectiles = projectilesRemove;
+  }
+}
+
+function explosion(x, y) {
+  this.projectiles = [];
+
+  for (let i = 0; i < 100; i++) {
+    this.projectiles.push(new projectile(x, y));
+  }
+}
+
+function projectile(x, y) {
+  this.x = x;
+  this.y = y;
+  this.radius = 2 + Math.random() * 4;
+  this.vx = -10 + Math.random() * 20;
+  this.vy = -10 + Math.random() * 20;
+  this.h = 200;
+  this.s = Math.floor(Math.random() * 100 + 70);
+  this.l = Math.floor(Math.random() * 70 + 30);
 }

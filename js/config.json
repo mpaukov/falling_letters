@@ -35,6 +35,8 @@
         "blue",
         "gold"
     ],
+    "timeInterval": 20000,
+    "timeLetterRespawn":1000,
     "audio": [
         {
             "description": "",
