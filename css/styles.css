@@ -39,3 +39,6 @@ canvas {
   background-image: url(../img/matrix.gif);
   border-radius: 10px;
 }
+.canvas {
+  background-image: none;
+}

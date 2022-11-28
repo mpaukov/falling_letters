@@ -4,6 +4,7 @@ const startButton = document.querySelector("button");
 const canvas = document.getElementById("myCanvas");
 
 let intervalIdx = 0;
+let timeoutIdx = 0;
 let ctx = canvas.getContext("2d");
 let dy = 2;
 let score = 0;
@@ -16,7 +17,10 @@ startButton.addEventListener("click", handleClick);
 
 function handleClick() {
   startButton.classList.add("hidden");
-  canvas.style.backgroundImage = "none";
+  if (timeoutIdx) {
+    clearTimeout(timeoutIdx);
+  }
+  canvas.classList.add("canvas");
   document.addEventListener("keydown", handleListener);
   intervalIdx = setInterval(() => {
     letters.push(letter());
@@ -29,8 +33,10 @@ function handleClick() {
 }
 
 function handleListener(e) {
+  new Audio(config.audio.click).play();
   const key = e.key.toUpperCase();
   const delLetters = letters.filter((letter) => letter.letter === key);
+
   delLetters.forEach((letter) => {
     if (letter.fillColor === "gold" && letter.strokeColor === "gold") {
       goldScore += 1;
@@ -87,16 +93,16 @@ function gameOver() {
   ctx.textBaseline = "middle";
   ctx.fillStyle = "#0095DD";
   ctx.fillText(`Score: ${score}`, canvas.width / 2, canvas.height / 2 - 60);
-  ctx.fillText(`GoldScore: ${goldScore}`, canvas.width / 2, canvas.height / 2);
+  ctx.fillText(`Gold Score: ${goldScore}`, canvas.width / 2, canvas.height / 2);
   ctx.fillText(
-    `Total Score = ${totalScore}`,
+    `Total Score: ${totalScore}`,
     canvas.width / 2,
     canvas.height / 2 + 60
   );
   startButton.classList.remove("hidden");
   document.removeEventListener("keydown", handleListener);
-  setTimeout(() => {
-    canvas.style.backgroundImage = "url(../img/matrix.gif)";
+  timeoutIdx = setTimeout(() => {
+    canvas.classList.remove("canvas");
   }, 5000);
   letters = [];
   explosions = [];
@@ -184,7 +190,7 @@ function drawExplosion() {
 
 function explosion(x, y) {
   this.projectiles = [];
-
+  new Audio(config.audio.fire).play();
   for (let i = 0; i < 100; i++) {
     this.projectiles.push(new projectile(x, y));
   }
