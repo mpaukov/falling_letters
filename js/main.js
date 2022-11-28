@@ -78,11 +78,11 @@ function collisions() {
 }
 
 function drawScore() {
-  ctx.font = "36px serif";
+  ctx.font = "24px serif";
   ctx.textAlign = "left";
   ctx.textBaseline = "middle";
   ctx.fillStyle = "#0095DD";
-  ctx.fillText("Score: " + totalScore, 20, 20);
+  ctx.fillText("Total Score: " + totalScore, 20, 20);
 }
 
 function gameOver() {
