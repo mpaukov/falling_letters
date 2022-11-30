@@ -123,7 +123,6 @@ function letter() {
   } else {
     range = 0;
   }
-  console.log("range", range);
   const probability = Math.floor(Math.random() * range);
   let fillColor;
   let strokeColor;
