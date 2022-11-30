@@ -1,5 +1,9 @@
 {
-    "font": "48px serif",
+    "font": {
+        "name":"serif",
+        "mainSize":48,
+        "secondarySize":24
+    },
     "letters": [
         "A",
         "B",
@@ -36,9 +40,16 @@
         "gold"
     ],
     "timeInterval": 20000,
-    "timeLetterRespawn":1000,
-    "audio":{
-        "click":"audio/click.mp3",
-        "fire":"audio/fire.mp3"
+    "timeLetterRespawn": 1000,
+    "timeDelay":5000,
+    "letterSpeed": 2,
+    "probability":0.25,
+    "price": {
+        "letter": 1,
+        "goldLetter": 2
+    },
+    "audio": {
+        "click": "audio/click.mp3",
+        "fire": "audio/fire.mp3"
     }
 }

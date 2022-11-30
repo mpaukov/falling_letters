@@ -6,7 +6,7 @@ const canvas = document.getElementById("myCanvas");
 let intervalIdx = 0;
 let timeoutIdx = 0;
 let ctx = canvas.getContext("2d");
-let dy = 2;
+let dy = config.letterSpeed;
 let score = 0;
 let goldScore = 0;
 let totalScore = 0;
@@ -40,14 +40,15 @@ function handleListener(e) {
     if (letter.fillColor === "gold" && letter.strokeColor === "gold") {
       goldScore += 1;
     } else score += 1;
-    totalScore = score + 2 * goldScore;
+    totalScore =
+      score * config.price.letter + goldScore * config.price.goldLetter;
     explosions.push(new explosion(letter.x, letter.y));
   });
   letters = letters.filter((letter) => letter.letter !== key);
 }
 
 function drawLetters() {
-  ctx.font = config.font;
+  ctx.font = `${config.font.mainSize}px ${config.font.name}`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
 
@@ -78,40 +79,55 @@ function collisions() {
 }
 
 function drawScore() {
-  ctx.font = "24px serif";
+  ctx.font = `${config.font.secondarySize}px ${config.font.name}`;
   ctx.textAlign = "left";
   ctx.textBaseline = "middle";
   ctx.fillStyle = "#0095DD";
-  ctx.fillText("Total Score: " + totalScore, 20, 20);
+  ctx.fillText(
+    "Total Score: " + totalScore,
+    config.font.secondarySize,
+    config.font.secondarySize
+  );
 }
 
 function gameOver() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.font = config.font;
+  ctx.font = `${config.font.mainSize}px ${config.font.name}`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillStyle = "#0095DD";
-  ctx.fillText(`Score: ${score}`, canvas.width / 2, canvas.height / 2 - 60);
+  ctx.fillText(
+    `Score: ${score}`,
+    canvas.width / 2,
+    canvas.height / 2 - config.font.mainSize
+  );
   ctx.fillText(`Gold Score: ${goldScore}`, canvas.width / 2, canvas.height / 2);
   ctx.fillText(
     `Total Score: ${totalScore}`,
     canvas.width / 2,
-    canvas.height / 2 + 60
+    canvas.height / 2 + config.font.mainSize
   );
   startButton.classList.remove("hidden");
   document.removeEventListener("keydown", handleListener);
   timeoutIdx = setTimeout(() => {
     canvas.classList.remove("canvas");
-  }, 5000);
+  }, config.timeDelay);
   letters = [];
   explosions = [];
 }
 
 function letter() {
-  const probability = Math.floor(Math.random() * 4);
+  let range;
+  if (config.probability) {
+    range = Math.floor(1 / config.probability);
+  } else {
+    range = 0;
+  }
+  console.log("range", range);
+  const probability = Math.floor(Math.random() * range);
   let fillColor;
   let strokeColor;
-  if (probability === 3) {
+  if (probability === range - 1) {
     fillColor = config.colors[config.colors.length - 1];
     strokeColor = fillColor;
   } else {
@@ -122,7 +138,9 @@ function letter() {
   }
   return {
     letter: config.letters[Math.floor(Math.random() * config.letters.length)],
-    x: Math.floor(Math.random() * (canvas.width - 48)) + 24,
+    x:
+      Math.floor(Math.random() * (canvas.width - config.font.mainSize)) +
+      config.font.secondarySize,
     y: 0,
     fillColor,
     strokeColor,
@@ -187,21 +205,25 @@ function drawExplosion() {
   }
 }
 
-function explosion(x, y) {
-  this.projectiles = [];
-  new Audio(config.audio.fire).play();
-  for (let i = 0; i < 100; i++) {
-    this.projectiles.push(new projectile(x, y));
+class explosion {
+  constructor(x, y) {
+    this.projectiles = [];
+    new Audio(config.audio.fire).play();
+    for (let i = 0; i < 100; i++) {
+      this.projectiles.push(new projectile(x, y));
+    }
   }
 }
 
-function projectile(x, y) {
-  this.x = x;
-  this.y = y;
-  this.radius = 2 + Math.random() * 4;
-  this.vx = -10 + Math.random() * 20;
-  this.vy = -10 + Math.random() * 20;
-  this.h = 200;
-  this.s = Math.floor(Math.random() * 100 + 70);
-  this.l = Math.floor(Math.random() * 70 + 30);
+class projectile {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.radius = 2 + Math.random() * 4;
+    this.vx = -10 + Math.random() * 20;
+    this.vy = -10 + Math.random() * 20;
+    this.h = 200;
+    this.s = Math.floor(Math.random() * 100 + 70);
+    this.l = Math.floor(Math.random() * 70 + 30);
+  }
 }
