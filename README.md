@@ -10,7 +10,8 @@
 
 1. After each session show a screen with total score details(formula of total score visualized for player - total points + (total golden letters \* golden letter price)
 
-#config.json
+# config.json
+
 The configuration file contains the basic default settings for the game to work.
 colors - gold should always be the last one.
 timeInterval - for the session time
